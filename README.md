@@ -7,6 +7,6 @@ Still a work in progress.  Required libraries to run:
 
 https://github.com/Reimius/jquery-popover
 
-http://jquery-plugins.net/switchery-ios-7-style-switches-for-checkboxes
+https://github.com/abpetkov/switchery
 
 Example code on how to set up the class at the top of the Javascript file.
