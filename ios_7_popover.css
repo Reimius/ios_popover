@@ -1,0 +1,136 @@
+/* 
+    Created on : Jul 30, 2014, 10:03:12 AM
+    Author     : e5u2r0m
+*/
+
+.popover > .header {
+	border-bottom-style: solid;
+	border-bottom-color: #CCCCCC;
+	border-bottom-width: 1px;
+}
+
+ul.popover_list {
+	list-style-type: none;
+	line-height: 40px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	background-color: #F9F9F9;
+	margin: 0px;
+	padding-left: 20px;
+	border-bottom-style: solid;
+	border-bottom-color: #CCCCCC;
+	border-bottom-width: 1px;
+	border-top-style: solid;
+	border-top-color: #CCCCCC;
+	border-top-width: 1px;
+}
+
+ul.popover_list:first-child {
+	border-top-style: none;
+}
+
+ul.popover_list li {
+	height: 40px;
+	border-top-style: solid;
+	border-top-color: #CCCCCC;
+	border-top-width: 1px;
+}
+
+ul.popover_list li:first-child {
+	border-top-style: none;
+}
+
+ul.popover_list div.popover_list_selected_text {
+	position:absolute;
+	right:30px;
+	color:#777777;
+}
+
+ul.popover_list .switchery {
+	position:absolute;
+	right:10px;
+	margin-top:4px;
+}
+
+ul.popover_list div.popover_list_li_text {
+	position:absolute;
+	left:20px;
+}
+
+ul.popover_list div.popover_list_li_text_checkbox {
+	position:absolute;
+	left:35px;
+}
+
+ul.popover_list img.popover_li_checkbox {
+	position:absolute;
+	left:10px;
+	margin-top:10px;
+}
+
+ul.popover_list img[src="images/right_arrow.png"] {
+	position:absolute;
+	right:8px;
+	margin-top:13px;
+	height:12px;
+	with:10px;
+}
+
+div.popover_content {
+	position:relative;
+	background-color:#EEEEEE;
+	font-size:17px;
+	overflow:hidden;
+}
+
+div.popover_shifter {
+	position:absolute;
+	left:0px;
+	top:0px;
+	border-style:none;
+}
+
+div.popover_shifter > div {
+	position:absolute;
+	top:0px;
+	border-style:none;
+}
+
+div.popover_content textarea {
+	border: none;
+    outline: none;
+	-webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+	padding-left: 0px;
+	padding-top: 10px;
+	margin-top: 0px;
+	background-color: transparent;
+	font-size: 13pt;
+	font-family: arial;
+	/*text-indent: -3px; ios browser issue, fix at some point */
+	-webkit-overflow-scrolling: touch;
+}
+
+div.popover_content input[type="text"] {
+	border: none;
+    outline: none;
+	-webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+	padding-left: 0px;
+	padding-top: 0px;
+	margin-top: 0px;
+	background-color: transparent;
+	font-size: 13pt;
+	font-family: arial;
+}
+
+div.popover_divider {
+	background-color: transparent;
+	height:40px;
+	color:#666666;
+	padding-left:22px;
+	padding-top:10px;
+	font-size:14px;
+}
