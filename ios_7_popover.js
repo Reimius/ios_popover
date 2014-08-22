@@ -107,6 +107,7 @@ var Ios7Popover = function(config){
 	me.fieldsArray = [];
 	me.currentLayouts = {};
 	me.enableMultiPaging = config.enableMultiPaging ? true : false;
+	me.currentPageIndex = 0;
 	
 	me.getFieldsObject = function(){
 		return me.fieldsObject;
@@ -119,9 +120,8 @@ var Ios7Popover = function(config){
 	var baseMarkup = 
 		"<div style=\"display:none;\">" +
 			"<div id=\"" + me.baseId + "_popup_header\">" +
-				"<span id=\"" + me.baseId + "_popover_header_text_1\" style=\"position:absolute;left:0px;right:0px;\">" + me.title + "</span>" +
-				"<span id=\"" + me.baseId + "_popover_header_text_2\" style=\"position:absolute;left:0px;right:0px;display:none;\"></span>" +
 				"<span id=\"" + me.baseId + "_popover_back\" style=\"position:absolute;left:12px;color:#007AFF;display:none;-webkit-tap-highlight-color: rgba(0,0,0,0);\">Back</span>" +
+				"<span id=\"" + me.baseId + "_popover_next\" style=\"position:absolute;right:12px;color:#007AFF;-webkit-tap-highlight-color: rgba(0,0,0,0);display:none;\">Next</span>" +
 				"<span id=\"" + me.baseId + "_popover_done\" style=\"position:absolute;right:12px;color:#007AFF;-webkit-tap-highlight-color: rgba(0,0,0,0);\">Done</span>" +
 			"</div>" +
 			"<div id=\"" + me.baseId + "_popover_content\" class=\"popover_content\" style=\"height:" + me.height + ";width:" + me.width + ";\">" +
@@ -129,6 +129,8 @@ var Ios7Popover = function(config){
 				"</div>" +
 			"</div>" +
 		"</div>";
+
+	var titleMarkup = "<span id=\"" + me.baseId + "_popover_header_text_{page_number}\" style=\"position:absolute;left:0px;right:0px;display:{display};\">{page_title}</span>";
 
 	var pageMarkup = "<div id=\"" + me.baseId + "_popover_page_{page_number}\" style=\"left:{left_pixels}px;height:" + me.height + ";width:" + me.width + ";overflow-y:auto;-webkit-overflow-scrolling: touch;\">" +
 		"</div>";
@@ -268,8 +270,13 @@ var Ios7Popover = function(config){
 	
 	me.activateSubMenuFromSelect = function(liConfig){
 		
-		var submenu = $("#" + me.baseId + "_popover_page_submenu_0");
+		var ulConfig = liConfig.parentUl;
+		var pageConfig = ulConfig.parentPage;
+		var pageIndex = me.itemConfigs.indexOf(pageConfig);
+		
+		var submenu = $("#" + me.baseId + "_popover_page_submenu_" + pageIndex);
 		submenu.show();
+		$("#" + me.baseId + "_popover_page_" + (pageIndex + 1)).hide();//hide the real menu for the next page
 		var ul = submenu.children("ul");
 
 		var arrayToProcess = liConfig.data;
@@ -298,18 +305,17 @@ var Ios7Popover = function(config){
 		}
 
 		ul.append(newItems);
-
-		$("#" + me.baseId + "_popover_header_text_2").html(liConfig.fieldLabel);
-		$("#" + me.baseId + "_popover_shifter").animate(
-			{left: "-" + me.width},
-			{
-				duration: 'medium'
-			}
-		);
+		
+		me.moveShifterRight(true);
+		
+		$("#" + me.baseId + "_popover_header_text_" + me.currentPageIndex).html(liConfig.fieldLabel);
+		
 		$("#" + me.baseId + "_popover_back").fadeIn('medium');
 		$("#" + me.baseId + "_popover_done").fadeOut('medium');
-		$("#" + me.baseId + "_popover_header_text_2").fadeIn('medium');
-		$("#" + me.baseId + "_popover_header_text_1").fadeOut('medium');
+		$("#" + me.baseId + "_popover_next").fadeOut('medium');
+		
+		me.updateHeaderTextState();
+		
 	};
 	
 	//handles when an item on the main menu is clicked
@@ -393,19 +399,38 @@ var Ios7Popover = function(config){
 		
 		liTarget.children("div.selected").fadeOut("fast");
 	};
+	
+	me.moveShifterRight = function(stopUpdateHeader){
+		me.currentPageIndex = me.currentPageIndex + 1;
+		
+		var pixelWidth = $("#" + me.baseId + "_popover_content").width();
+
+		$("#" + me.baseId + "_popover_shifter").animate(
+			{left: "-" + (pixelWidth * me.currentPageIndex)},
+			{
+				duration: 'medium'
+			}
+		);
+
+		if(!stopUpdateHeader)
+			me.updateHeaderState();
+	};
 
 	me.moveShifterLeft = function(){
-		$("#" + me.baseId + "_popover_shifter").animate({left: 0},{
+		
+		me.currentPageIndex = me.currentPageIndex - 1;
+		
+		var pixelWidth = $("#" + me.baseId + "_popover_content").width();
+		
+		$("#" + me.baseId + "_popover_shifter").animate({left: -1 * me.currentPageIndex * pixelWidth},{
 			duration: 'fast',
 			complete: function(){
-				var cheese = $("#" + me.baseId + "_popover_page_0").find("div.selected");
+				var cheese = $("#" + me.baseId + "_popover_page_" + me.currentPageIndex).find("div.selected");
 				cheese.fadeOut("fast");
 			}
 		});
-		$("#" + me.baseId + "_popover_back").fadeOut('medium');
-		$("#" + me.baseId + "_popover_done").fadeIn('medium');
-		$("#" + me.baseId + "_popover_header_text_2").fadeOut('medium');
-		$("#" + me.baseId + "_popover_header_text_1").fadeIn('medium');
+		
+		me.updateHeaderState();
 	};
 	
 	me.closePopover = function(){
@@ -422,6 +447,7 @@ var Ios7Popover = function(config){
 		//legacy support for single page popover
 		me.itemConfigs = [
 			{
+				title: me.title,
 				items: me.itemConfigs
 			}
 		];
@@ -432,18 +458,20 @@ var Ios7Popover = function(config){
 		//need to grab the actual width in pixels, may need to write a corrector function for when the screen is rotated and they are using percentage
 		var pixelWidth = $("#" + me.baseId + "_popover_content").width();
 		
+		var pageConfig = me.itemConfigs[k];
+		
 		var newPage = $(pageMarkup.replace(/\{page_number\}/g, k).replace(/\{left_pixels\}/g, k * pixelWidth));
 		var newSelectSubPage = $(subpageSelectMarkup.replace(/\{page_number\}/g, k).replace(/\{left_pixels\}/g, ((k + 1) * pixelWidth) + "px"));
-		
+		var pageTitle = $(titleMarkup.replace(/\{page_number\}/g, k).replace(/\{page_title\}/g, pageConfig.title).replace(/\{display\}/g, k == 0? "block" : "none"));
 		$("#" + me.baseId + "_popover_shifter").append(newPage);
 		$("#" + me.baseId + "_popover_shifter").append(newSelectSubPage);
+		$("#" + me.baseId + "_popup_header").prepend(pageTitle);
 		
-		var pageConfig = me.itemConfigs[k];
 		var ulConfigs = pageConfig.items;
 		
 		var mainMenuRender = "";
 		for(var i = 0; i < ulConfigs.length; i++)
-		{	
+		{
 			var sectionConfig = ulConfigs[i];
 			sectionConfig.parentPage = pageConfig;
 			if(sectionConfig.type == "divider")
@@ -471,11 +499,11 @@ var Ios7Popover = function(config){
 						if(itemConfig.selectedValue && (itemConfig.type == "select" || itemConfig.type == "layoutselect"))
 						{
 							var itemDataArray = itemConfig.data;
-							for(var k = 0; k < itemDataArray.length; k++)
+							for(var m = 0; m < itemDataArray.length; m++)
 							{
-								if(itemDataArray[k][itemConfig.valueField] == itemConfig.selectedValue)
+								if(itemDataArray[m][itemConfig.valueField] == itemConfig.selectedValue)
 								{
-									selectedValueDisplay = itemDataArray[k][itemConfig.displayField];
+									selectedValueDisplay = itemDataArray[m][itemConfig.displayField];
 									break;
 								}
 							}
@@ -552,7 +580,7 @@ var Ios7Popover = function(config){
 		});
 
 		$("#" + me.baseId + "_popover_page_submenu_" + k).children("ul").bind("click", me.selectItem);
-
+		
 		//setup values and layouts, basically anything we need to do in javascript to initialize
 		var mainElement = $("#" + me.baseId + "_popover_page_" + k);
 		var mainElementList = mainElement.children();
@@ -614,8 +642,51 @@ var Ios7Popover = function(config){
 		}
 	}
 	
+	me.updateHeaderState = function(){
+		if(me.currentPageIndex == 0)
+			$("#" + me.baseId + "_popover_back").fadeOut('medium');
+		else
+			$("#" + me.baseId + "_popover_back").fadeIn('medium');
+		if(me.currentPageIndex >= me.itemConfigs.length - 1)
+		{
+			$("#" + me.baseId + "_popover_done").fadeIn('medium');
+			$("#" + me.baseId + "_popover_next").fadeOut('medium');
+		}
+		else
+		{
+			$("#" + me.baseId + "_popover_done").fadeOut('medium');
+			$("#" + me.baseId + "_popover_next").fadeIn('medium');
+		}
+		me.updateHeaderTextState();
+	};
+	
+	me.updateHeaderTextState = function(){
+		for(var i = 0; i < me.itemConfigs.length; i++)
+		{
+			if(me.currentPageIndex != i)
+				$("#" + me.baseId + "_popover_header_text_" + i).fadeOut('medium');
+		}
+		$("#" + me.baseId + "_popover_header_text_" + me.currentPageIndex).fadeIn('medium');
+	};
+	
+	me.gotoNextPage = function(){
+		
+		$("#" + me.baseId + "_popover_page_submenu_" + me.currentPageIndex).hide();
+		$("#" + me.baseId + "_popover_page_" + (me.currentPageIndex + 1)).show();
+		$("#" + me.baseId + "_popover_header_text_" + (me.currentPageIndex + 1)).html(me.itemConfigs[me.currentPageIndex + 1].title);
+		
+		me.moveShifterRight();
+	};
+	
 	$("#" + me.baseId + "_popover_back").bind("click", {me: me}, me.moveShifterLeft);
 	$("#" + me.baseId + "_popover_done").bind("click", {me: me}, me.closePopover);
+	$("#" + me.baseId + "_popover_next").bind("click", {me: me}, me.gotoNextPage);
+	
+	if(me.itemConfigs.length > 1)
+	{
+		$("#" + me.baseId + "_popover_done").hide();
+		$("#" + me.baseId + "_popover_next").show();
+	}
 	
 	//setup and initialization of the original popover
 	config.header =  "#" + me.baseId + "_popup_header";
@@ -624,7 +695,8 @@ var Ios7Popover = function(config){
 	config.closeEvent = function(){
 		if(oldCloseEvent)
 			oldCloseEvent();
-		me.moveShifterLeft();
+		while(me.currentPageIndex > 0)
+			me.moveShifterLeft();
 	};
 	
 	var oldOpenEvent = config.openEvent;
@@ -670,6 +742,9 @@ var Ios7Popover = function(config){
 			}
 			var mainItemSelectedTextElement = li.children("div").eq(1);
 			mainItemSelectedTextElement.html(displayValue);
+			
+			if(liConfig.type == "layoutselect")
+				me.doLayoutSelect(liConfig.name, value);
 		}
 		else if(liConfig.type == "text" || liConfig.type == "date" || liConfig.type == "datetime")
 		{
