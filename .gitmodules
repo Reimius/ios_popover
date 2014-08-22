@@ -1,0 +1,6 @@
+[submodule "jquery-popover"]
+	path = jquery-popover
+	url = https://github.com/Reimius/jquery-popover.git
+[submodule "switchery"]
+	path = switchery
+	url = https://github.com/abpetkov/switchery.git
