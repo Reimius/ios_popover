@@ -277,7 +277,7 @@ var Ios7Popover = function(config){
 		var submenu = $("#" + me.baseId + "_popover_page_submenu_" + pageIndex);
 		submenu.show();
 		$("#" + me.baseId + "_popover_page_" + (pageIndex + 1)).hide();//hide the real menu for the next page
-		var ul = submenu.children("ul");
+		var ul = submenu.children();
 
 		var arrayToProcess = liConfig.data;
 
@@ -566,7 +566,7 @@ var Ios7Popover = function(config){
 		//set up the main menu in the html and set some events on it
 		var mainMenuPane = $("#" + me.baseId + "_popover_page_" + k);
 		mainMenuPane.append(mainMenuRender);
-		mainMenuPane.children("ul").children("li").bind("click", {pageConfig: pageConfig}, function(eventObject){
+		mainMenuPane.children().children("li").bind("click", {pageConfig: pageConfig}, function(eventObject){
 			me.mainItemClick(eventObject.data.pageConfig, $(eventObject.currentTarget), $(eventObject.target));
 		});
 
@@ -579,7 +579,7 @@ var Ios7Popover = function(config){
 			me.mainItemClick(eventObject.data.pageConfig, $(eventObject.currentTarget).parent(), $(eventObject.currentTarget));
 		});
 
-		$("#" + me.baseId + "_popover_page_submenu_" + k).children("ul").bind("click", me.selectItem);
+		$("#" + me.baseId + "_popover_page_submenu_" + k).children().bind("click", me.selectItem);
 		
 		//setup values and layouts, basically anything we need to do in javascript to initialize
 		var mainElement = $("#" + me.baseId + "_popover_page_" + k);
@@ -725,7 +725,7 @@ var Ios7Popover = function(config){
 		me.getFieldsObject()[fieldName].selectedValue = value;
 		
 		var mainMenuPane = $("#" + me.baseId + "_popover_page_" + pageIndex);
-		var ul = mainMenuPane.children("ul").eq(ulIndex);
+		var ul = mainMenuPane.children().eq(ulIndex);
 		var li = ul.children("li").eq(liIndex);
 		
 		if(liConfig.type == "select" || liConfig.type == "layoutselect")
