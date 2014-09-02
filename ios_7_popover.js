@@ -480,7 +480,7 @@ var Ios7Popover = function(config){
 			{
 				mainMenuRender += "<ul class=\"popover_list\">";
 				var sectionConfigItems = sectionConfig.items;
-				var groupCheckBoxes = sectionConfig.groupCheckboxes;
+				var groupCheckboxes = sectionConfig.groupCheckboxes;
 				for(var j = 0; j < sectionConfigItems.length; j++)
 				{
 					var itemConfig = sectionConfigItems[j];
@@ -544,7 +544,7 @@ var Ios7Popover = function(config){
 
 					var liRender = "<li style=\"-webkit-tap-highlight-color: rgba(0,0,0,0);" + (customHeight ? "height:" + customHeight + ";" : "") + "\">";
 					var liClass = "popover_list_li_text";
-					if(groupCheckBoxes)
+					if(groupCheckboxes)
 					{
 						var checkboxCheckedCss = itemConfig.checked ? "block" : "none";
 						liRender += checkMarkMarkup.replace(/\{checkbox_display\}/g, checkboxCheckedCss);
